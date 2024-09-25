@@ -37,7 +37,7 @@ async def error_handler(update: object, context: CallbackContext):
     logger.error(f'Произошла ошибка: {context.error}')
 
 # Обработка вебхуков через Flask
-await @app.route('/webhook/', methods=['POST'])
+@app.route('/webhook/', methods=['POST'])
 def webhook():
     if request.method == "POST":
         update = Update.de_json(request.get_json(), application.bot)
@@ -66,7 +66,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-
 
 
 
