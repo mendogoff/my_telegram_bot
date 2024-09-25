@@ -8,9 +8,10 @@ import asyncio
 # Логирование
 logging.basicConfig(level=logging.INFO)
 
-# Получаем токен бота из переменной окружения
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-WEBHOOK_URL = "https://your_public_url/webhook/"  # Ваш публичный URL для вебхука
+# Получаем токен бота и ID канала из переменных окружения
+TOKEN = os.getenv("8027225541:AAFUq7VeX9zWHHfnISipKM53nZgi4s7_odg")
+CHANNEL_ID = os.getenv("-1002388187883")  # Убедитесь, что здесь указан правильный ID вашего канала
+WEBHOOK_URL = "https://https://api.render.com/deploy/srv-crq8k7l2ng1s73e46h40?key=rdyLgUfDFm4/webhook/"  # Ваш публичный URL для вебхука
 
 # Инициализация Flask приложения
 app = Flask(__name__)
@@ -19,28 +20,28 @@ app = Flask(__name__)
 bot = Bot(token=TOKEN)
 application = Application.builder().token(TOKEN).build()
 
-# Список для хранения участников чата
-chat_participants = {}
-
-# Команда /start - регистрация нового пользователя в чате
+# Команда /start
 async def start(update: Update, context):
     user_id = update.message.from_user.id
-    chat_participants[user_id] = update.message.from_user.first_name
-    await update.message.reply_text("Вы присоединились к анонимному чату. Все ваши сообщения будут отправлены анонимно.")
+    await update.message.reply_text("Привет! Вы можете отправлять анонимные сообщения, которые будут пересылаться в канал.")
 
-# Обработчик текстовых сообщений - пересылка сообщений всем участникам чата
+# Обработчик текстовых сообщений - пересылка сообщений в канал
 async def handle_message(update: Update, context):
-    user_id = update.message.from_user.id
+    user_name = update.message.from_user.first_name
     text = update.message.text
     
-    # Анонимное сообщение для всех участников, кроме отправителя
-    for participant_id in chat_participants:
-        if participant_id != user_id:
-            await bot.send_message(chat_id=participant_id, text=f"Аноним: {text}")
+    # Формирование анонимного сообщения
+    message_to_send = f"Сообщение от анонима: {text}"
+    
+    # Отправляем сообщение в канал
+    await bot.send_message(chat_id=CHANNEL_ID, text=message_to_send)
+    
+    # Подтверждаем отправку пользователю
+    await update.message.reply_text("Ваше сообщение было отправлено в канал анонимно.")
 
 # Команда /help
 async def help_command(update: Update, context):
-    await update.message.reply_text("Используйте /start для входа в анонимный чат. Все ваши сообщения будут отправляться анонимно другим участникам.")
+    await update.message.reply_text("Используйте /start для начала отправки сообщений в анонимный канал.")
 
 # Добавляем обработчики команд и сообщений
 application.add_handler(CommandHandler("start", start))
