@@ -3,6 +3,7 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
 import os
 from flask import Flask, request
+import asyncio
 
 # Включаем логирование для отладки
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -41,8 +42,11 @@ async def error_handler(update: object, context: CallbackContext):
 def webhook():
     if request.method == "POST":
         update = Update.de_json(request.get_json(), application.bot)
-        application.process_update(update)
+        asyncio.run(application.process_update(update))
         return 'ok', 200
+
+async def set_webhook():
+    await application.bot.set_webhook(url="https://telegram-bot.onrender.com/webhook/")  # URL вебхука
 
 def main():
     # Инициализация приложения с вашим токеном
@@ -58,14 +62,11 @@ def main():
     # Логируем ошибки
     application.add_error_handler(error_handler)
 
-    # Устанавливаем вебхук
-    application.bot.set_webhook(url="https://telegram-bot.onrender.com/webhook/")  # URL вебхука
-    
+    # Установка вебхука асинхронно
+    asyncio.run(set_webhook())
+
     # Запуск Flask-сервера
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
 
 if __name__ == '__main__':
     main()
-
-
-
